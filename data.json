@@ -1,20 +1,222 @@
 {
     "BTC": {
-        "prior": 50,
-        "likelihood": 65,
-        "posterior": 57.5,
-        "signal": "BULLISH"
+        "name": "Bitcoin",
+        "image": "https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400",
+        "current_price": 71790,
+        "price_change_24h": 1.35,
+        "prior": 59,
+        "likelihood": 53,
+        "posterior": 56.4,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
     },
     "ETH": {
-        "prior": 45,
-        "likelihood": 40,
-        "posterior": 42.5,
-        "signal": "BEARISH"
+        "name": "Ethereum",
+        "image": "https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628",
+        "current_price": 2129.49,
+        "price_change_24h": 2.05,
+        "prior": 48,
+        "likelihood": 55,
+        "posterior": 51.9,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "USDT": {
+        "name": "Tether",
+        "image": "https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661",
+        "current_price": 1.0,
+        "price_change_24h": 0.0,
+        "prior": 50,
+        "likelihood": 50,
+        "posterior": 50.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "BNB": {
+        "name": "BNB",
+        "image": "https://coin-images.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1696501970",
+        "current_price": 664.15,
+        "price_change_24h": 1.52,
+        "prior": 50,
+        "likelihood": 53,
+        "posterior": 51.5,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "XRP": {
+        "name": "XRP",
+        "image": "https://coin-images.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1696501442",
+        "current_price": 1.42,
+        "price_change_24h": 1.91,
+        "prior": 50,
+        "likelihood": 54,
+        "posterior": 52.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "USDC": {
+        "name": "USDC",
+        "image": "https://coin-images.coingecko.com/coins/images/6319/large/USDC.png?1769615602",
+        "current_price": 0.999999,
+        "price_change_24h": -0.0,
+        "prior": 50,
+        "likelihood": 49,
+        "posterior": 49.5,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
     },
     "SOL": {
-        "prior": 60,
-        "likelihood": 85,
-        "posterior": 72.5,
-        "signal": "BULLISH"
+        "name": "Solana",
+        "image": "https://coin-images.coingecko.com/coins/images/4128/large/solana.png?1718769756",
+        "current_price": 88.78,
+        "price_change_24h": 1.95,
+        "prior": 80,
+        "likelihood": 54,
+        "posterior": 67.4,
+        "signal": "BULLISH",
+        "timestamp": 1773608134
+    },
+    "TRX": {
+        "name": "TRON",
+        "image": "https://coin-images.coingecko.com/coins/images/1094/large/tron-logo.png?1696502193",
+        "current_price": 0.298561,
+        "price_change_24h": 0.49,
+        "prior": 50,
+        "likelihood": 51,
+        "posterior": 50.5,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "FIGR_HELOC": {
+        "name": "Figure Heloc",
+        "image": "https://coin-images.coingecko.com/coins/images/68480/large/figure.png?1755863954",
+        "current_price": 1.003,
+        "price_change_24h": 0,
+        "prior": 50,
+        "likelihood": 50,
+        "posterior": 50.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "DOGE": {
+        "name": "Dogecoin",
+        "image": "https://coin-images.coingecko.com/coins/images/5/large/dogecoin.png?1696501409",
+        "current_price": 0.095446,
+        "price_change_24h": 0.58,
+        "prior": 50,
+        "likelihood": 51,
+        "posterior": 50.5,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "WBT": {
+        "name": "WhiteBIT Coin",
+        "image": "https://coin-images.coingecko.com/coins/images/27045/large/wbt_token.png?1696526096",
+        "current_price": 56.14,
+        "price_change_24h": 1.38,
+        "prior": 50,
+        "likelihood": 53,
+        "posterior": 51.5,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "USDS": {
+        "name": "USDS",
+        "image": "https://coin-images.coingecko.com/coins/images/39926/large/usds.webp?1726666683",
+        "current_price": 0.999949,
+        "price_change_24h": 0.0,
+        "prior": 50,
+        "likelihood": 50,
+        "posterior": 50.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "ADA": {
+        "name": "Cardano",
+        "image": "https://coin-images.coingecko.com/coins/images/975/large/cardano.png?1696502090",
+        "current_price": 0.26453,
+        "price_change_24h": 1.91,
+        "prior": 50,
+        "likelihood": 54,
+        "posterior": 52.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "BCH": {
+        "name": "Bitcoin Cash",
+        "image": "https://coin-images.coingecko.com/coins/images/780/large/bitcoin-cash-circle.png?1696501932",
+        "current_price": 462.67,
+        "price_change_24h": -0.38,
+        "prior": 50,
+        "likelihood": 49,
+        "posterior": 49.5,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "HYPE": {
+        "name": "Hyperliquid",
+        "image": "https://coin-images.coingecko.com/coins/images/50882/large/hyperliquid.jpg?1729431300",
+        "current_price": 37.01,
+        "price_change_24h": -2.08,
+        "prior": 50,
+        "likelihood": 44,
+        "posterior": 47.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "LEO": {
+        "name": "LEO Token",
+        "image": "https://coin-images.coingecko.com/coins/images/8418/large/leo-token.png?1696508607",
+        "current_price": 9.06,
+        "price_change_24h": -0.09,
+        "prior": 50,
+        "likelihood": 49,
+        "posterior": 49.5,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "LINK": {
+        "name": "Chainlink",
+        "image": "https://coin-images.coingecko.com/coins/images/877/large/Chainlink_Logo_500.png?1760023405",
+        "current_price": 9.26,
+        "price_change_24h": 2.51,
+        "prior": 50,
+        "likelihood": 56,
+        "posterior": 53.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "XMR": {
+        "name": "Monero",
+        "image": "https://coin-images.coingecko.com/coins/images/69/large/monero_logo.png?1696501460",
+        "current_price": 354.36,
+        "price_change_24h": -0.47,
+        "prior": 50,
+        "likelihood": 48,
+        "posterior": 49.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "USDE": {
+        "name": "Ethena USDe",
+        "image": "https://coin-images.coingecko.com/coins/images/33613/large/usde.png?1733810059",
+        "current_price": 0.999536,
+        "price_change_24h": -0.06,
+        "prior": 50,
+        "likelihood": 49,
+        "posterior": 49.5,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
+    },
+    "CC": {
+        "name": "Canton",
+        "image": "https://coin-images.coingecko.com/coins/images/70468/large/Canton-Ticker_%281%29.png?1762826299",
+        "current_price": 0.150119,
+        "price_change_24h": -0.54,
+        "prior": 50,
+        "likelihood": 48,
+        "posterior": 49.0,
+        "signal": "NEUTRAL",
+        "timestamp": 1773608134
     }
 }
