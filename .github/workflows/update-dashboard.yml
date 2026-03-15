@@ -1,0 +1,56 @@
+name: Auto-Update CMC Sentiment
+
+on:
+  schedule:
+    # Run every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC
+    - cron: '0 0,6,12,18 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  scrape-cmc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0 # Required to cleanly check out gh-pages later
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install specific python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Install Playwright browsers
+        run: playwright install chromium
+
+      - name: Run Playwright Scraper
+        run: python scraper.py
+
+      - name: Deploy data.json to gh-pages branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Stash the newly generated data.json so it isn't lost during branch changes
+          git stash push data.json
+          
+          # Switch cleanly to the live gh-pages branch
+          git checkout -B gh-pages origin/gh-pages
+          
+          # Retrieve the data.json and commit it
+          git stash pop
+          git add data.json
+          
+          # Only commit/push if data.json actually changed to prevent empty commits
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update CoinMarketCap sentiment data"
+          
+          git push origin gh-pages
