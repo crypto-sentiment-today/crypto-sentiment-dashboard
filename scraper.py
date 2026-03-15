@@ -12,30 +12,6 @@ except ImportError:
 DATA_FILE = "data.json"
 CG_API_URL = "https://api.coingecko.com/api/v3/coins/markets"
 
-def derive_raw_sentiment(price_change_24h, volume_24h, market_cap):
-    """
-    Algorithmically derives a 0-100 'Raw Sentiment' based on real market momentum.
-    High positive price change + High volume = High Bullish Sentiment (>50)
-    Negative price change + High volume = High Bearish Sentiment (<50)
-    Flat price action = Neutral Sentiment (~50)
-    """
-    if price_change_24h is None:
-        return 50 # Default neutral if data is missing
-        
-    # Baseline is exactly neutral
-    base_sentiment = 50.0
-    
-    # Sigmoid mapping of price change to sentiment (-20% to +20% maps to roughly 0 to 100)
-    # y = 1 / (1 + e^-x) -> scaled to 0-100
-    x = price_change_24h / 10.0 
-    sigmoid_modifier = 1 / (1 + math.exp(-x))
-    
-    raw = sigmoid_modifier * 100
-    
-    # Cap between 10 and 90
-    return int(max(10, min(90, raw)))
-    
-
 def fetch_top_20_crypto_sentiment():
     """
     Fetches the top 20 cryptocurrencies by market cap from CoinGecko
@@ -84,9 +60,23 @@ def fetch_top_20_crypto_sentiment():
         vol_24h = coin['total_volume']
         mcap = coin['market_cap']
         
-        print(f"[{ticker}] Processing momentum data...")
+        print(f"[{ticker}] Processing real sentiment data...")
         
-        raw_sentiment = derive_raw_sentiment(change_24h, vol_24h, mcap)
+        # We need to make a specific call to the individual coin endpoint to get sentiment
+        # The markets list endpoint doesn't include 'sentiment_votes_up_percentage' by default
+        coin_id = coin['id']
+        raw_sentiment = 50 # Default if API fails
+        try:
+            # We add a tiny delay to avoid hitting rate limits on the free API tier
+            time.sleep(0.5) 
+            detail_res = requests.get(f"https://api.coingecko.com/api/v3/coins/{coin_id}", timeout=5)
+            if detail_res.ok:
+                detail_data = detail_res.json()
+                up_votes = detail_data.get('sentiment_votes_up_percentage')
+                if up_votes is not None:
+                    raw_sentiment = up_votes
+        except Exception as e:
+            print(f"  -> Error fetching sentiment for {ticker}: {e}")
             
         results[ticker] = {
             "name": name,
@@ -94,7 +84,7 @@ def fetch_top_20_crypto_sentiment():
             "current_price": price,
             "price_change_24h": round(change_24h, 2) if change_24h else 0,
             "total_volume": vol_24h,
-            "likelihood": raw_sentiment,
+            "likelihood": float(raw_sentiment),
             "timestamp": int(time.time())
         }
         
