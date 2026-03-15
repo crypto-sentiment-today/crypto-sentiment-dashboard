@@ -1,0 +1,20 @@
+{
+    "BTC": {
+        "prior": 50,
+        "likelihood": 65,
+        "posterior": 57.5,
+        "signal": "BULLISH"
+    },
+    "ETH": {
+        "prior": 45,
+        "likelihood": 40,
+        "posterior": 42.5,
+        "signal": "BEARISH"
+    },
+    "SOL": {
+        "prior": 60,
+        "likelihood": 85,
+        "posterior": 72.5,
+        "signal": "BULLISH"
+    }
+}

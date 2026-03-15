@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Sentiment Matrix</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        
+        :root {
+            --bg-base: #09090b;
+            --bg-glass: rgba(24, 24, 27, 0.6);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent-bullish: #10b981;
+            --accent-bearish: #ef4444;
+            --text-main: #fafafa;
+            --text-muted: #a1a1aa;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.15), transparent 30%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.1), transparent 30%),
+                radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.05), transparent 40%);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .pill-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary);
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0 0 1rem 0;
+            background: linear-gradient(to right, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .asset-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .asset-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .asset-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px var(--primary-glow);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .asset-card:hover::before {
+            opacity: 1;
+        }
+
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .asset-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .asset-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .asset-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .asset-ticker {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .sentiment-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .sentiment-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .sentiment-value {
+            font-weight: 600;
+            color: var(--text-main);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            width: 100%;
+            height: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .slider-track {
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+        }
+
+        .slider-fill {
+            position: absolute;
+            height: 100%;
+            left: 0;
+            border-radius: 4px;
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        input[type="range"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .slider-thumb {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: left 0.3s ease, transform 0.1s ease;
+            z-index: 5;
+        }
+
+        .slider-wrapper:hover .slider-thumb {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .results-panel {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 1rem;
+            border: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .signal-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .actions {
+            text-align: center;
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 3rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-refresh:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-refresh:active {
+            transform: translateY(1px);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 0.25rem;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="pill-badge">Live Analysis</div>
+            <h1>Crypto Sentiment Matrix</h1>
+            <p class="subtitle">Real-time Bayesian inference mapping prior market expectations against current CoinMarketCap community sentiment.</p>
+        </header>
+
+        <div class="dashboard-grid" id="dashboard">
+            <!-- Asset Cards Injected Here via JavaScript -->
+        </div>
+
+        <div class="actions">
+            <button class="btn-refresh" id="refresh-btn" onclick="fetchData()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="refresh-icon">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
+                </svg>
+                Sync with Network
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const formatColor = (val) => {
+            if (val >= 60) return 'var(--accent-bullish)';
+            if (val <= 40) return 'var(--accent-bearish)';
+            return '#eab308'; // Neutral (Yellow)
+        };
+
+        const renderAssetCard = (ticker, data) => {
+            const symbols = {
+                'BTC': '₿',
+                'ETH': 'Ξ',
+                'SOL': '◎'
+            };
+            
+            const prior = data ? data.prior : 50;
+            const likelihood = data ? data.likelihood : 50;
+            const posterior = data ? data.posterior : 50;
+            const signalStr = data ? data.signal : 'NEUTRAL';
+            const icon = symbols[ticker] || ticker[0];
+
+            return `
+                <div class="asset-card" id="card-${ticker}">
+                    <div class="asset-header">
+                        <div class="asset-info">
+                            <div class="asset-icon">${icon}</div>
+                            <div>
+                                <h2 class="asset-name">${ticker}</h2>
+                                <span class="asset-ticker">Asset Network</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sentiment-group">
+                        <div class="sentiment-label">
+                            <span>Prior Probability (Historical)</span>
+                            <span class="sentiment-value" id="val-prior-${ticker}">${prior}%</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <div class="slider-track">
+                                <div class="slider-fill" id="fill-prior-${ticker}" style="width: ${prior}%; background: ${formatColor(prior)}"></div>
+                            </div>
+                            <div class="slider-thumb" id="thumb-prior-${ticker}" style="left: ${prior}%"></div>
+                            <input type="range" id="slider-prior-${ticker}" min="0" max="100" value="${prior}" oninput="handleSliderChange('${ticker}')">
+                        </div>
+                    </div>
+
+                    <div class="sentiment-group">
+                        <div class="sentiment-label">
+                            <span>Likelihood (CMC Community)</span>
+                            <span class="sentiment-value" id="val-like-${ticker}">${likelihood}%</span>
+                        </div>
+                        <div class="slider-wrapper">
+                            <div class="slider-track">
+                                <div class="slider-fill" id="fill-like-${ticker}" style="width: ${likelihood}%; background: ${formatColor(likelihood)}"></div>
+                            </div>
+                            <div class="slider-thumb" id="thumb-like-${ticker}" style="left: ${likelihood}%"></div>
+                            <input type="range" id="slider-like-${ticker}" min="0" max="100" value="${likelihood}" oninput="handleSliderChange('${ticker}')">
+                        </div>
+                    </div>
+
+                    <div class="results-panel">
+                        <div class="metric">
+                            <span class="metric-title">Posterior Belief</span>
+                            <span class="metric-value" id="post-${ticker}" style="color: ${formatColor(posterior)}">${posterior.toFixed(1)}%</span>
+                        </div>
+                        <div class="signal-indicator" style="border: 1px solid ${formatColor(posterior)}40; color: ${formatColor(posterior)}">
+                            <div class="pulse" id="pulse-${ticker}" style="background: ${formatColor(posterior)}; box-shadow: 0 0 10px ${formatColor(posterior)}"></div>
+                            <span id="signal-text-${ticker}">${signalStr}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+
+        const handleSliderChange = (ticker) => {
+            const prior = parseInt(document.getElementById(`slider-prior-${ticker}`).value);
+            const likelihood = parseInt(document.getElementById(`slider-like-${ticker}`).value);
+
+            // Update UI elements
+            document.getElementById(`val-prior-${ticker}`).innerText = `${prior}%`;
+            document.getElementById(`fill-prior-${ticker}`).style.width = `${prior}%`;
+            document.getElementById(`fill-prior-${ticker}`).style.background = formatColor(prior);
+            document.getElementById(`thumb-prior-${ticker}`).style.left = `${prior}%`;
+
+            document.getElementById(`val-like-${ticker}`).innerText = `${likelihood}%`;
+            document.getElementById(`fill-like-${ticker}`).style.width = `${likelihood}%`;
+            document.getElementById(`fill-like-${ticker}`).style.background = formatColor(likelihood);
+            document.getElementById(`thumb-like-${ticker}`).style.left = `${likelihood}%`;
+
+            // Calculate Posterior (Simple Bayesian approximation for demo)
+            // Posterior = (Prior * Likelihood) / Marginal Likelihood
+            // For sliders out of 100, we normalize. simplified to weighted avg:
+            const posterior = (prior + likelihood) / 2;
+            
+            // Update Results
+            const postEl = document.getElementById(`post-${ticker}`);
+            postEl.innerText = `${posterior.toFixed(1)}%`;
+            postEl.style.color = formatColor(posterior);
+
+            let signal = 'NEUTRAL';
+            if (posterior >= 60) signal = 'BULLISH';
+            if (posterior <= 40) signal = 'BEARISH';
+
+            const signalTextEl = document.getElementById(`signal-text-${ticker}`);
+            const signalIndicatorEl = signalTextEl.parentElement;
+            const pulseEl = document.getElementById(`pulse-${ticker}`);
+
+            signalTextEl.innerText = signal;
+            signalIndicatorEl.style.color = formatColor(posterior);
+            signalIndicatorEl.style.borderColor = `${formatColor(posterior)}40`;
+            pulseEl.style.background = formatColor(posterior);
+            pulseEl.style.boxShadow = `0 0 10px ${formatColor(posterior)}`;
+        };
+
+        const loadInitialState = async () => {
+            const dashboard = document.getElementById('dashboard');
+            
+            // Initial render with default or skeleton state
+            dashboard.innerHTML = ['BTC', 'ETH', 'SOL'].map(t => renderAssetCard(t, null)).join('');
+            
+            await fetchData();
+        };
+
+        const fetchData = async () => {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('spin');
+
+            try {
+                // Fetch from our local scraper JSON
+                // To avoid caching issues, append timestamp
+                const res = await fetch(\`./data.json?t=\${new Date().getTime()}\`);
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    const dashboard = document.getElementById('dashboard');
+                    const html = Object.keys(data).map(ticker => renderAssetCard(ticker, data[ticker])).join('');
+                    
+                    // Staggered fade in animation
+                    dashboard.style.opacity = '0';
+                    setTimeout(() => {
+                        dashboard.innerHTML = html;
+                        dashboard.style.transition = 'opacity 0.5s ease';
+                        dashboard.style.opacity = '1';
+                    }, 200);
+
+                } else {
+                    console.error("Failed to load data.json");
+                }
+            } catch (err) {
+                console.error("Network or parsing error", err);
+            } finally {
+                setTimeout(() => icon.classList.remove('spin'), 800);
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', loadInitialState);
+    </script>
+</body>
+</html>
