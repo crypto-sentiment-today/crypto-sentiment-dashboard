@@ -12,16 +12,9 @@ except ImportError:
 DATA_FILE = "data.json"
 CG_API_URL = "https://api.coingecko.com/api/v3/coins/markets"
 
-def calculate_posterior(prior, likelihood):
+def derive_raw_sentiment(price_change_24h, volume_24h, market_cap):
     """
-    In a true Bayesian statistical sense, posterior is proportional to prior * likelihood.
-    For this dashboard demo (0-100 scale), we use a normalized approximation.
-    """
-    return (prior + likelihood) / 2
-
-def derive_sentiment_likelihood(price_change_24h, volume_24h, market_cap):
-    """
-    Algorithmically derives a 0-100 'Likelihood' (Current Sentiment) based on real market momentum.
+    Algorithmically derives a 0-100 'Raw Sentiment' based on real market momentum.
     High positive price change + High volume = High Bullish Sentiment (>50)
     Negative price change + High volume = High Bearish Sentiment (<50)
     Flat price action = Neutral Sentiment (~50)
@@ -34,15 +27,13 @@ def derive_sentiment_likelihood(price_change_24h, volume_24h, market_cap):
     
     # Sigmoid mapping of price change to sentiment (-20% to +20% maps to roughly 0 to 100)
     # y = 1 / (1 + e^-x) -> scaled to 0-100
-    # A 10% move is very significant in 24h. We scale x so that 10% gives a strong signal.
-    # e.g. change of 10 -> x = 1.0 -> sentiment ~73%
     x = price_change_24h / 10.0 
     sigmoid_modifier = 1 / (1 + math.exp(-x))
     
-    likelihood = sigmoid_modifier * 100
+    raw = sigmoid_modifier * 100
     
-    # Cap between 10 and 90 to prevent extreme certainty 
-    return int(max(10, min(90, likelihood)))
+    # Cap between 10 and 90
+    return int(max(10, min(90, raw)))
     
 
 def fetch_top_20_crypto_sentiment():
@@ -95,31 +86,15 @@ def fetch_top_20_crypto_sentiment():
         
         print(f"[{ticker}] Processing momentum data...")
         
-        likelihood = derive_sentiment_likelihood(change_24h, vol_24h, mcap)
-            
-        # Prior is carried over from last run, or defaulted to 50
-        prior = existing_data.get(ticker, {}).get("posterior", 50)
-        
-        # Compute posterior
-        posterior = calculate_posterior(prior, likelihood)
-        
-        # Determine signal flag
-        if posterior >= 60:
-            signal = "BULLISH"
-        elif posterior <= 40:
-            signal = "BEARISH"
-        else:
-            signal = "NEUTRAL"
+        raw_sentiment = derive_raw_sentiment(change_24h, vol_24h, mcap)
             
         results[ticker] = {
             "name": name,
             "image": thumb,
             "current_price": price,
             "price_change_24h": round(change_24h, 2) if change_24h else 0,
-            "prior": int(prior),
-            "likelihood": likelihood,
-            "posterior": round(posterior, 1),
-            "signal": signal,
+            "total_volume": vol_24h,
+            "likelihood": raw_sentiment,
             "timestamp": int(time.time())
         }
         
@@ -136,9 +111,9 @@ def main():
     with open(DATA_FILE, "w") as f:
         json.dump(data, f, indent=4)
         
-    print(f"\nSuccessfully wrote updated Bayesian sentiment for {len(data)} assets to {DATA_FILE}")
+    print(f"\nSuccessfully wrote updated sentiment for {len(data)} assets to {DATA_FILE}")
     for asset, metrics in data.items():
-        print(f"  -> {asset}: Prior {metrics['prior']}% | Likelihood {metrics['likelihood']}% | Posterior {metrics['posterior']}% ({metrics['signal']}) | Price: ${metrics['current_price']} ({metrics['price_change_24h']}%)")
+        print(f"  -> {asset}: Raw {metrics['likelihood']}% | Vol {metrics['total_volume']} | Price: ${metrics['current_price']} ({metrics['price_change_24h']}%)")
         
 if __name__ == "__main__":
     main()
