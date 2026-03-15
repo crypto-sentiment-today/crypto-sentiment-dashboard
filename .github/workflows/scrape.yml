@@ -1,0 +1,43 @@
+name: Update Crypto Sentiment Data
+on:
+  schedule:
+    - cron: '0 * * * *' # Run exactly at the top of every hour
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  scrape-and-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to commit back to the repo
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch Latest Sentiment Data
+        run: python3 scraper.py
+
+      - name: Commit and Push Changes
+        run: |
+          # Check if data.json was actually modified
+          if [[ -z $(git status -s data.json) ]]; then
+            echo "No changes in sentiment data. Skipping commit."
+            exit 0
+          fi
+          
+          # Use the strict identity we set up locally
+          git config --global user.name "crypto-sentiment-today"
+          git config --global user.email "crypto.sentiment.today@gmail.com"
+          
+          git add data.json
+          git commit -m "Automated update: Refresh top 20 crypto sentiment data"
+          git push
