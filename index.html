@@ -486,7 +486,7 @@
 
             try {
                 // Fetch from our local scraper JSON
-                const res = await fetch(\`./data.json?t=\${new Date().getTime()}\`);
+                const res = await fetch(`./data.json?t=${new Date().getTime()}`);
                 if (res.ok) {
                     const data = await res.json();
                     
